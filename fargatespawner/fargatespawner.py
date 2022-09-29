@@ -346,8 +346,11 @@ async def _make_ecs_request(logger, aws_endpoint, target, dict_data):
     try:
         response = await client.fetch(request)
     except HTTPError as exception:
-        logger.exception('HTTPError from ECS (%s)', exception.response.body)
-        raise
+        try:
+            logger.exception('HTTPError from ECS (%s)', exception.response.body)
+        except Exception:
+            logger.exception('HTTPError from ECS (%s)', exception)
+        raise exception
     logger.debug('Request response (%s)', response.body)
     return json.loads(response.body)
 
